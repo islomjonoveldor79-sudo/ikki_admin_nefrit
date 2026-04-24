@@ -1,1609 +1,212 @@
 <!DOCTYPE html>
 <html lang="uz">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nefrit Admin Panel</title>
-    <meta name="robots" content="noindex,nofollow">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap"
-        rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Nefrit Marketplace | Do'kon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./config.local.js"></script>
     <style>
         :root {
-            --blue: #0D6B50;
-            --green: #1FAD80;
-            --red: #E63946;
-            --orange: #F4845F;
-            --bg: #EEF7F2;
-            --card: #fff;
+            --primary: #0D6B50; /* Jade Green */
+            --accent: #1FAD80;
+            --bg: #F3F7F5;
+            --card: #FFFFFF;
             --text: #0B2318;
             --sub: #5C8A76;
-            --border: #B8D9CC;
-            --sh: 0 4px 20px rgba(13, 107, 80, .10);
-            --sh2: 0 10px 44px rgba(13, 107, 80, .18);
-            --glow: 0 0 20px rgba(29, 173, 128, .25)
+            --border: #E0E7E3;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 50px; }
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh
-        }
-
-        .hidden {
-            display: none !important
-        }
-
-        /* LOGIN */
-        #login-screen {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(160deg, #c4ead9, #EEF7F2 55%, #d4ede6);
-            padding: 24px
-        }
-
-        .login-card {
+        /* HEADER */
+        header {
             background: var(--card);
-            border-radius: 28px;
-            padding: 36px 28px;
-            box-shadow: var(--sh2);
-            width: 100%;
-            max-width: 380px;
-            text-align: center;
-            border: 1.5px solid var(--border)
-        }
-
-        .login-icon {
-            font-size: 52px;
-            margin-bottom: 16px
-        }
-
-        .login-title {
-            font-size: 26px;
-            font-weight: 900;
-            margin-bottom: 6px
-        }
-
-        .login-sub {
-            font-size: 14px;
-            color: var(--sub);
-            margin-bottom: 28px
-        }
-
-        .field-label {
-            text-align: left;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--sub);
-            margin-bottom: 6px
-        }
-
-        .field-input {
-            width: 100%;
-            padding: 14px 16px;
-            border-radius: 14px;
-            border: 1.5px solid var(--border);
-            font-family: inherit;
-            font-size: 15px;
-            font-weight: 600;
-            outline: none;
-            margin-bottom: 20px;
-            color: var(--text);
-            background: #fff;
-            transition: border-color .2s, box-shadow .2s
-        }
-
-        .field-input:focus {
-            border-color: var(--blue);
-            box-shadow: var(--glow)
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 15px;
-            border-radius: 14px;
-            border: none;
-            background: linear-gradient(135deg, #0D6B50, #1FAD80);
-            color: #fff;
-            font-family: inherit;
-            font-size: 16px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 4px 18px rgba(13, 107, 80, .30)
-        }
-
-        .login-err {
-            color: var(--red);
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            display: none
-        }
-
-        /* TOPBAR */
-        .topbar {
-            background: rgba(238, 247, 242, .92);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            padding: 14px 20px;
+            padding: 20px;
             position: sticky;
             top: 0;
             z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: space-between
-        }
-
-        .topbar h1 {
-            font-size: 19px;
-            font-weight: 900
-        }
-
-        .logout-btn {
-            padding: 8px 16px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(230, 57, 70, .08);
-            color: var(--red);
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer
-        }
-
-        /* CONTENT */
-        .content {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px 16px 80px
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 24px
-        }
-
-        .stat-card {
-            background: var(--card);
-            border-radius: 18px;
-            padding: 14px 12px;
-            box-shadow: var(--sh);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             text-align: center;
-            border: 1px solid var(--border)
         }
+        header h1 { color: var(--primary); font-size: 22px; font-weight: 800; }
 
-        .stat-num {
-            font-size: 28px;
-            font-weight: 900;
-            color: var(--blue)
-        }
-
-        .stat-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--sub);
-            margin-top: 2px
-        }
-
-        .section-title {
-            font-size: 15px;
-            font-weight: 800;
-            margin-bottom: 10px
-        }
-
-        /* ANALYTICS */
-        .analytics-box {
-            background: var(--card);
-            border-radius: 18px;
-            padding: 16px;
-            box-shadow: var(--sh);
-            border: 1px solid var(--border);
-            margin-bottom: 20px
-        }
-
-        .an-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        /* KATEGORIYALAR */
+        #categories-nav {
+            display: flex;
             gap: 10px;
-            margin-bottom: 12px
-        }
-
-        .an-chart-wrap {
-            display: flex;
-            align-items: flex-end;
-            gap: 5px;
-            height: 70px
-        }
-
-        .an-labels {
-            display: flex;
-            gap: 5px;
-            margin-top: 6px
-        }
-
-        /* SYSTEM STATUS */
-        .sys-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 24px
-        }
-
-        .sys-card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 14px 16px;
-            box-shadow: var(--sh);
-            border: 1px solid var(--border)
-        }
-
-        .sys-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--sub);
-            margin-bottom: 4px
-        }
-
-        .sys-num {
-            font-size: 22px;
-            font-weight: 900;
-            color: var(--blue)
-        }
-
-        .sys-sub {
-            font-size: 11px;
-            color: var(--sub);
-            margin-top: 2px
-        }
-
-        .progress-bar-wrap {
-            height: 4px;
-            background: var(--border);
-            border-radius: 4px;
-            margin-top: 8px;
-            overflow: hidden
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #0D6B50, #1FAD80);
-            border-radius: 4px;
-            width: 0;
-            transition: width .6s
-        }
-
-        /* SETTINGS */
-        .mini-card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 12px;
-            box-shadow: var(--sh);
-            margin-bottom: 14px;
-            border: 1px solid var(--border)
-        }
-
-        .mini-title {
-            font-size: 13px;
-            font-weight: 800;
-            margin-bottom: 8px
-        }
-
-        .mini-row {
-            display: flex;
-            gap: 8px
-        }
-
-        .mini-save {
-            padding: 0 14px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #0D6B50, #1FAD80);
-            color: #fff;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 800;
-            cursor: pointer
-        }
-
-        /* TABS */
-        .admin-tabs {
-            display: flex;
-            background: var(--card);
-            border-radius: 16px;
-            padding: 4px;
-            box-shadow: var(--sh);
-            margin-bottom: 20px;
-            border: 1px solid var(--border)
-        }
-
-        .admin-tab {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 12px;
-            background: transparent;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--sub);
-            cursor: pointer;
-            transition: all .2s
-        }
-
-        .admin-tab.active {
-            background: linear-gradient(135deg, #0D6B50, #1FAD80);
-            color: #fff
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px
-        }
-
-        .section-header h2 {
-            font-size: 17px;
-            font-weight: 800
-        }
-
-        .add-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
-            border-radius: 12px;
-            border: none;
-            background: linear-gradient(135deg, #0D6B50, #1FAD80);
-            color: #fff;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 3px 12px rgba(13, 107, 80, .28)
-        }
-
-        /* LISTS */
-        .cat-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 24px
-        }
-
-        .cat-row {
-            background: var(--card);
-            border-radius: 14px;
-            padding: 13px 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: var(--sh);
-            border: 1px solid var(--border)
-        }
-
-        .cat-row-icon {
-            font-size: 20px
-        }
-
-        .cat-row-name {
-            flex: 1;
-            font-size: 15px;
-            font-weight: 700
-        }
-
-        .cat-row-count {
-            font-size: 12px;
-            color: var(--sub);
-            font-weight: 600;
-            background: var(--bg);
-            padding: 3px 9px;
-            border-radius: 10px;
-            border: 1px solid var(--border)
-        }
-
-        .prod-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px
-        }
-
-        .prod-row {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 12px;
-            box-shadow: var(--sh);
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            border: 1px solid var(--border)
-        }
-
-        .prod-thumb {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            object-fit: cover;
-            background: #d5ede4;
-            flex-shrink: 0
-        }
-
-        .prod-info {
-            flex: 1;
-            min-width: 0
-        }
-
-        .prod-name {
-            font-size: 14px;
-            font-weight: 700;
+            overflow-x: auto;
+            padding: 15px 20px;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis
+            scrollbar-width: none;
         }
-
-        .prod-meta {
-            font-size: 12px;
-            color: var(--sub);
-            font-weight: 600;
-            margin-top: 2px
-        }
-
-        .prod-price {
-            font-size: 13px;
-            font-weight: 800;
-            color: var(--blue);
-            margin-top: 3px
-        }
-
-        .prod-actions {
-            display: flex;
-            gap: 6px;
-            flex-shrink: 0
-        }
-
-        .edit-btn {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(13, 107, 80, .10);
-            color: var(--blue);
-            cursor: pointer;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center
-        }
-
-        .del-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
-            border: none;
-            background: #fde8ea;
-            color: var(--red);
-            cursor: pointer;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center
-        }
-
-        .search-box {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .cat-btn {
             background: var(--card);
-            border-radius: 14px;
-            padding: 10px 14px;
-            box-shadow: var(--sh);
-            border: 1.5px solid var(--border);
-            margin-bottom: 12px
-        }
-
-        .search-box input {
-            border: none;
-            outline: none;
-            flex: 1;
-            font-family: inherit;
-            font-size: 14px;
-            background: transparent;
-            color: var(--text)
-        }
-
-        /* FORM OVERLAY */
-        .form-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 300;
-            background: rgba(7, 38, 28, .5);
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .3s
-        }
-
-        .form-overlay.open {
-            opacity: 1;
-            pointer-events: all
-        }
-
-        @media(min-width:700px) {
-            .form-overlay {
-                align-items: center
-            }
-        }
-
-        .form-sheet {
-            background: var(--card);
-            border-radius: 28px 28px 0 0;
-            width: 100%;
-            max-width: 540px;
-            max-height: 92vh;
-            overflow-y: auto;
-            transform: translateY(100%);
-            transition: transform .35s cubic-bezier(.34, 1.2, .64, 1);
-            padding: 0 0 40px;
-            border-top: 2px solid rgba(29, 173, 128, .2)
-        }
-
-        .form-overlay.open .form-sheet {
-            transform: translateY(0)
-        }
-
-        @media(min-width:700px) {
-            .form-sheet {
-                border-radius: 28px;
-                transform: scale(.9)
-            }
-
-            .form-overlay.open .form-sheet {
-                transform: scale(1)
-            }
-        }
-
-        .form-header {
-            position: sticky;
-            top: 0;
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 1;
-            border-radius: 28px 28px 0 0
-        }
-
-        .form-header h3 {
-            font-size: 17px;
-            font-weight: 800
-        }
-
-        .form-body {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px
-        }
-
-        .form-label {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--sub);
-            margin-bottom: 6px;
-            display: block
-        }
-
-        .form-input,
-        .form-select,
-        .form-textarea {
-            width: 100%;
-            padding: 13px 15px;
-            border-radius: 13px;
-            border: 1.5px solid var(--border);
-            font-family: inherit;
-            font-size: 15px;
-            font-weight: 600;
-            outline: none;
-            color: var(--text);
-            transition: border-color .2s, box-shadow .2s;
-            background: var(--bg)
-        }
-
-        .form-input:focus,
-        .form-select:focus,
-        .form-textarea:focus {
-            border-color: var(--blue);
-            background: #fff;
-            box-shadow: var(--glow)
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 90px
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            padding: 0 20px
-        }
-
-        .cancel-btn {
-            flex: 1;
-            padding: 14px;
-            border-radius: 13px;
-            border: 1.5px solid var(--border);
-            background: transparent;
-            color: var(--sub);
-            font-family: inherit;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer
-        }
-
-        .save-btn {
-            flex: 2;
-            padding: 14px;
-            border-radius: 13px;
-            border: none;
-            background: linear-gradient(135deg, #0D6B50, #1FAD80);
-            color: #fff;
-            font-family: inherit;
-            font-size: 15px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 4px 16px rgba(13, 107, 80, .30)
-        }
-
-        .save-btn:disabled {
-            opacity: .6;
-            cursor: not-allowed
-        }
-
-        .close-btn {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            border: none;
-            background: var(--bg);
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--sub)
-        }
-
-        /* IMAGE UPLOAD */
-        .upload-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px
-        }
-
-        @media(min-width:680px) {
-            .upload-grid {
-                grid-template-columns: repeat(3, 1fr)
-            }
-        }
-
-        .slot-title {
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--sub);
-            margin-bottom: 6px
-        }
-
-        .img-upload-zone {
-            border: 2px dashed var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all .2s;
-            background: var(--bg);
-            position: relative;
-            overflow: hidden
-        }
-
-        .img-upload-zone:hover {
-            border-color: var(--blue);
-            background: rgba(29, 173, 128, .06)
-        }
-
-        .img-upload-zone.dragover {
-            border-color: var(--blue);
-            background: rgba(29, 173, 128, .12)
-        }
-
-        .img-upload-zone input[type=file] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-            font-size: 0
-        }
-
-        .upload-icon {
-            font-size: 28px;
-            margin-bottom: 6px
-        }
-
-        .upload-text {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--sub)
-        }
-
-        .upload-sub {
-            font-size: 11px;
-            color: var(--sub);
-            margin-top: 3px
-        }
-
-        .img-preview-wrap {
-            position: relative;
-            margin-top: 10px
-        }
-
-        .img-preview {
-            width: 100%;
-            aspect-ratio: 4/3;
-            object-fit: cover;
-            border-radius: 14px;
-            display: block
-        }
-
-        .img-remove-btn {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, .6);
-            border: none;
-            color: #fff;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center
-        }
-
-        .upload-progress {
-            height: 4px;
-            background: var(--border);
-            border-radius: 4px;
-            margin-top: 8px;
-            overflow: hidden;
-            display: none
-        }
-
-        .upload-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #0D6B50, #1FAD80);
-            border-radius: 4px;
-            transition: width .3s;
-            width: 0
-        }
-
-        /* EMOJI */
-        .emoji-suggest {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px
-        }
-
-        .emoji-pill {
             border: 1px solid var(--border);
-            background: var(--bg);
-            border-radius: 12px;
-            padding: 7px 10px;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 17px;
-            line-height: 1;
-            transition: transform .15s
+            transition: 0.3s;
         }
+        .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .emoji-pill:active {
-            transform: scale(.95)
+        /* MAHSULOTLAR GRIDI */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 15px;
         }
-
-        /* CONFIRM */
-        .confirm-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 400;
-            background: rgba(7, 38, 28, .5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .2s
-        }
-
-        .confirm-overlay.open {
-            opacity: 1;
-            pointer-events: all
-        }
-
-        .confirm-box {
+        .product-card {
             background: var(--card);
-            border-radius: 22px;
-            padding: 24px;
-            max-width: 320px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+        .product-img {
             width: 100%;
-            text-align: center;
-            transform: scale(.9);
-            transition: transform .25s;
-            border: 1.5px solid var(--border)
+            aspect-ratio: 1;
+            object-fit: cover;
+            background: #eee;
         }
+        .product-info { padding: 12px; }
+        .product-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-price { color: var(--primary); font-weight: 700; font-size: 16px; }
 
-        .confirm-overlay.open .confirm-box {
-            transform: scale(1)
-        }
-
-        .confirm-icon {
-            font-size: 36px;
-            margin-bottom: 10px
-        }
-
-        .confirm-title {
-            font-size: 17px;
-            font-weight: 800;
-            margin-bottom: 6px
-        }
-
-        .confirm-sub {
-            font-size: 13px;
-            color: var(--sub);
-            margin-bottom: 20px;
-            line-height: 1.5
-        }
-
-        .confirm-actions {
-            display: flex;
-            gap: 10px
-        }
-
-        .confirm-cancel {
-            flex: 1;
-            padding: 13px;
-            border-radius: 13px;
-            border: 1.5px solid var(--border);
-            background: transparent;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--sub);
-            cursor: pointer
-        }
-
-        .confirm-ok {
-            flex: 1;
-            padding: 13px;
-            border-radius: 13px;
-            border: none;
-            background: var(--red);
-            color: #fff;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 800;
-            cursor: pointer
-        }
-
-        /* TOAST */
-        .toast {
+        /* MODAL */
+        .modal-overlay {
             position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: linear-gradient(135deg, #0B3325, #0D6B50);
-            color: #fff;
-            padding: 12px 22px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 700;
-            z-index: 500;
-            opacity: 0;
-            transition: all .3s;
-            white-space: nowrap;
-            pointer-events: none;
-            box-shadow: 0 6px 24px rgba(13, 107, 80, .35)
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none; align-items: center; justify-content: center;
+            z-index: 1000; padding: 20px;
+        }
+        .modal-content {
+            background: white; width: 100%; max-width: 400px;
+            border-radius: 24px; overflow: hidden; position: relative;
+        }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: white; border-radius: 50%; width: 30px; height: 30px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .buy-btn {
+            background: var(--primary); color: white; width: 100%;
+            padding: 15px; border: none; font-size: 16px; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
         }
 
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0)
-        }
-
-        .loading-spinner {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--sub);
-            gap: 10px
-        }
+        /* Yuklanish effekti */
+        .loader { text-align: center; padding: 50px; color: var(--sub); font-size: 14px; }
     </style>
 </head>
-
 <body>
 
-    <!-- ===== LOGIN ===== -->
-    <div id="login-screen">
-        <div class="login-card">
-            <div class="login-icon">🔐</div>
-            <div class="login-title">Admin Panel</div>
-            <div class="login-sub">Nefrit Market boshqaruv tizimi</div>
-            <div class="field-label">Parol</div>
-            <input class="field-input" type="password" id="login-pass" placeholder="Parolni kiriting..."
-                onkeydown="if(event.key==='Enter')doLogin()">
-            <div class="login-err" id="login-err">❌ Parol noto'g'ri</div>
-            <button class="login-btn" onclick="doLogin()">Kirish →</button>
+<header>
+    <h1>NEFRIT MARKET</h1>
+</header>
+
+<nav id="categories-nav">
+    <button class="cat-btn active" onclick="filterCategory('all')">Barchasi</button>
+</nav>
+
+<main id="products-list" class="products-grid">
+    <div class="loader">Mahsulotlar yuklanmoqda...</div>
+</main>
+
+<div id="modal" class="modal-overlay" onclick="if(event.target==this) closeModal()">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <img id="m-img" class="product-img" src="" alt="">
+        <div style="padding: 20px;">
+            <h2 id="m-name" style="margin-bottom: 8px; font-size: 20px;"></h2>
+            <p id="m-desc" style="color: var(--sub); font-size: 14px; margin-bottom: 20px;"></p>
+            <div id="m-price" style="font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 20px;"></div>
+            <button class="buy-btn" onclick="orderViaTelegram()">
+                <span>Sotib olish</span>
+            </button>
         </div>
     </div>
+</div>
 
-    <!-- ===== ADMIN DASHBOARD ===== -->
-    <div id="admin-screen" class="hidden">
-        <div class="topbar">
-            <h1>🌿 Nefrit Admin</h1>
-            <button class="logout-btn" onclick="doLogout()">← Chiqish</button>
-        </div>
-        <div class="content">
+<script>
+    const { SUPABASE_URL, SUPABASE_KEY, TG_USERNAME } = window.TECHSHOP_CONFIG;
+    const supabase = exports.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-            <!-- TG Settings -->
-            <div class="mini-card">
-                <div class="mini-title">✈️ Telegram buyurtma akkaunti</div>
-                <div class="mini-row">
-                    <input class="form-input" id="admin-tg-input" type="text" placeholder="@admin_username"
-                        style="margin-bottom:0">
-                    <button class="mini-save" onclick="saveTgUsername()">Saqlash</button>
-                </div>
-            </div>
+    let allProducts = [];
+    let currentProduct = null;
 
-            <!-- Analytics -->
-            <div class="analytics-box">
-                <div class="section-title">📈 Tashrif statistikasi</div>
-                <div class="an-grid">
-                    <div class="stat-card">
-                        <div class="stat-num" id="an-today">—</div>
-                        <div class="stat-label">Bugun</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-num" id="an-week">—</div>
-                        <div class="stat-label">7 kun ichida</div>
-                    </div>
-                </div>
-                <div class="stat-card" style="padding:16px 16px 12px">
-                    <div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:10px">Oxirgi 7 kun grafigi
-                    </div>
-                    <div class="an-chart-wrap" id="an-chart"></div>
-                    <div class="an-labels" id="an-labels"></div>
-                </div>
-            </div>
+    async function init() {
+        await loadCategories();
+        await loadProducts();
+    }
 
-            <!-- System Status -->
-            <div class="section-title">📊 Tizim holati</div>
-            <div class="sys-grid" style="margin-bottom:24px">
-                <div class="sys-card">
-                    <div class="sys-label">📦 Jami yozuvlar</div>
-                    <div class="sys-num" id="s-rows">—</div>
-                    <div class="sys-sub">500 tagacha bepul</div>
-                    <div class="progress-bar-wrap">
-                        <div class="progress-bar" id="b-rows"></div>
-                    </div>
-                </div>
-                <div class="sys-card">
-                    <div class="sys-label">🗄️ Ma'lumotlar bazasi</div>
-                    <div class="sys-num" id="s-db">—</div>
-                    <div class="sys-sub" id="s-db-status">Holati: yaxshi</div>
-                    <div class="progress-bar-wrap">
-                        <div class="progress-bar" id="b-db"></div>
-                    </div>
-                </div>
-                <div class="sys-card">
-                    <div class="sys-label">🖼️ Yuklangan rasmlar</div>
-                    <div class="sys-num" id="s-imgs">—</div>
-                    <div class="sys-sub">Cheksiz joylashtirish</div>
-                    <div class="progress-bar-wrap">
-                        <div class="progress-bar" id="b-imgs"></div>
-                    </div>
-                </div>
-                <div class="sys-card">
-                    <div class="sys-label">📡 Taxminiy trafik</div>
-                    <div class="sys-num" id="s-bw">—</div>
-                    <div class="sys-sub">20 GB / oy bepul</div>
-                    <div class="progress-bar-wrap">
-                        <div class="progress-bar" id="b-bw" style="background:linear-gradient(90deg,#F4845F,#E63946)">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Product Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-num" id="st-prods">—</div>
-                    <div class="stat-label">Mahsulotlar</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-num" id="st-cats">—</div>
-                    <div class="stat-label">Kategoriyalar</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-num" id="st-low" style="color:var(--orange)">—</div>
-                    <div class="stat-label">Kam qolgan</div>
-                </div>
-            </div>
-
-            <!-- Tabs -->
-            <div class="admin-tabs">
-                <button class="admin-tab active" id="tab-btn-cats" onclick="switchTab('cats')">📂 Kataloglar</button>
-                <button class="admin-tab" id="tab-btn-prods" onclick="switchTab('prods')">📦 Mahsulotlar</button>
-            </div>
-
-            <!-- Categories Tab -->
-            <div id="tab-cats">
-                <div class="section-header">
-                    <h2>📂 Kataloglar</h2>
-                    <button class="add-btn" onclick="openCatForm()">+ Yangi</button>
-                </div>
-                <div class="cat-list" id="cat-list">
-                    <div class="loading-spinner">⏳ Yuklanmoqda...</div>
-                </div>
-            </div>
-
-            <!-- Products Tab -->
-            <div id="tab-prods" class="hidden">
-                <div class="section-header">
-                    <h2>📦 Mahsulotlar</h2>
-                    <button class="add-btn" onclick="openProdForm()">+ Yangi</button>
-                </div>
-                <div class="search-box">
-                    <span>🔍</span>
-                    <input type="search" id="prod-search" placeholder="Mahsulot qidiring..."
-                        oninput="filterAdminProds()">
-                </div>
-                <div class="prod-list" id="prod-list">
-                    <div class="loading-spinner">⏳ Yuklanmoqda...</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== PRODUCT FORM ===== -->
-    <div class="form-overlay" id="prod-overlay" onclick="closeProdOverlay(event)">
-        <div class="form-sheet">
-            <div class="form-header">
-                <h3 id="prod-form-title">Yangi mahsulot</h3>
-                <button class="close-btn" onclick="closeProd()">✕</button>
-            </div>
-            <div class="form-body">
-                <div><label class="form-label">Mahsulot nomi *</label><input class="form-input" id="f-name" type="text"
-                        placeholder="Masalan: iPhone 15 Pro"></div>
-                <div><label class="form-label">Kategoriya *</label><select class="form-select" id="f-cat"></select>
-                </div>
-                <div><label class="form-label">Narxi (so'm) *</label><input class="form-input" id="f-price"
-                        type="number" placeholder="12500000"></div>
-                <div><label class="form-label">Soni (dona) *</label><input class="form-input" id="f-stock" type="number"
-                        placeholder="10"></div>
-                <div><label class="form-label">Tavsif</label><textarea class="form-textarea" id="f-desc"
-                        placeholder="Mahsulot haqida qisqacha..."></textarea></div>
-                <div>
-                    <label class="form-label">Mahsulot rasmlari (3 tagacha)</label>
-                    <div class="upload-grid">
-                        <div>
-                            <div class="slot-title">Rasm 1 (asosiy)</div>
-                            <div class="img-upload-zone" data-index="0" id="zone-0">
-                                <input type="file" id="file-0" accept="image/*" onchange="handleFile(0,this.files[0])">
-                                <div id="ph-0">
-                                    <div class="upload-icon">🖼️</div>
-                                    <div class="upload-text">Rasm tanlash</div>
-                                    <div class="upload-sub">JPG,PNG,WEBP · Max 10MB</div>
-                                </div>
-                                <div class="img-preview-wrap hidden" id="pw-0"><img class="img-preview" id="pr-0" src=""
-                                        alt=""><button class="img-remove-btn" onclick="removeImg(0,event)">✕</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="slot-title">Rasm 2</div>
-                            <div class="img-upload-zone" data-index="1" id="zone-1">
-                                <input type="file" id="file-1" accept="image/*" onchange="handleFile(1,this.files[0])">
-                                <div id="ph-1">
-                                    <div class="upload-icon">🖼️</div>
-                                    <div class="upload-text">Rasm tanlash</div>
-                                    <div class="upload-sub">JPG,PNG,WEBP · Max 10MB</div>
-                                </div>
-                                <div class="img-preview-wrap hidden" id="pw-1"><img class="img-preview" id="pr-1" src=""
-                                        alt=""><button class="img-remove-btn" onclick="removeImg(1,event)">✕</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="slot-title">Rasm 3</div>
-                            <div class="img-upload-zone" data-index="2" id="zone-2">
-                                <input type="file" id="file-2" accept="image/*" onchange="handleFile(2,this.files[0])">
-                                <div id="ph-2">
-                                    <div class="upload-icon">🖼️</div>
-                                    <div class="upload-text">Rasm tanlash</div>
-                                    <div class="upload-sub">JPG,PNG,WEBP · Max 10MB</div>
-                                </div>
-                                <div class="img-preview-wrap hidden" id="pw-2"><img class="img-preview" id="pr-2" src=""
-                                        alt=""><button class="img-remove-btn" onclick="removeImg(2,event)">✕</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="upload-progress" id="upload-progress">
-                        <div class="upload-progress-bar" id="upload-bar"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-actions">
-                <button class="cancel-btn" onclick="closeProd()">Bekor</button>
-                <button class="save-btn" id="save-prod-btn" onclick="saveProd()">💾 Saqlash</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== CATEGORY FORM ===== -->
-    <div class="form-overlay" id="cat-overlay" onclick="closeCatOverlay(event)">
-        <div class="form-sheet" style="max-height:65vh">
-            <div class="form-header">
-                <h3>Yangi kategoriya</h3>
-                <button class="close-btn" onclick="closeCat()">✕</button>
-            </div>
-            <div class="form-body">
-                <div><label class="form-label">Kategoriya nomi *</label><input class="form-input" id="f-cat-name"
-                        type="text" placeholder="Masalan: Smartfonlar" onkeydown="if(event.key==='Enter')saveCat()">
-                </div>
-                <div>
-                    <label class="form-label">Emoji</label>
-                    <input class="form-input" id="f-cat-emoji" type="text" placeholder="📱" maxlength="2">
-                    <div class="emoji-suggest" style="margin-top:10px">
-                        <button class="emoji-pill" type="button" onclick="pickEmoji('🏠')">🏠</button>
-                        <button class="emoji-pill" type="button" onclick="pickEmoji('🧹')">🧹</button>
-                        <button class="emoji-pill" type="button" onclick="pickEmoji('🍽️')">🍽️</button>
-                        <button class="emoji-pill" type="button" onclick="pickEmoji('🫖')">🫖</button>
-                        <button class="emoji-pill" type="button" onclick="pickEmoji('🍳')">🍳</button>
-                        <button class="emoji-pill" type="button" onclick="pickEmoji('🛏️')">🛏️</button>
-                        <button class="emoji-pill" type="button" onclick="pickEmoji('🚿')">🚿</button>
-                        <button class="emoji-pill" type="button" onclick="pickEmoji('🧺')">🧺</button>
-                        <button class="emoji-pill" type="button" onclick="pickEmoji('🪑')">🪑</button>
-                        <button class="emoji-pill" type="button" onclick="pickEmoji('💡')">💡</button>
-                        <button class="emoji-pill" type="button" onclick="pickEmoji('🛒')">🛒</button>
-                        <button class="emoji-pill" type="button" onclick="pickEmoji('📦')">📦</button>
-                    </div>
-                </div>
-            </div>
-            <div class="form-actions">
-                <button class="cancel-btn" onclick="closeCat()">Bekor</button>
-                <button class="save-btn" id="save-cat-btn" onclick="saveCat()">💾 Saqlash</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== CONFIRM ===== -->
-    <div class="confirm-overlay" id="confirm-overlay">
-        <div class="confirm-box">
-            <div class="confirm-icon">🗑️</div>
-            <div class="confirm-title">O'chirishni tasdiqlang</div>
-            <div class="confirm-sub" id="confirm-sub">Rostdan o'chirmoqchimisiz?</div>
-            <div class="confirm-actions">
-                <button class="confirm-cancel" onclick="closeConfirm()">Bekor</button>
-                <button class="confirm-ok" id="confirm-ok">O'chirish</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="toast" id="toast"></div>
-
-    <script>
-        // ===== CONFIG =====
-        // ⚠️ Bu fayl faqat admin tomonidan, yopiq muhitda ishlatiladi.
-        // IK_PRIVATE_KEY ni bu yerda saqlash xavfsiz — chunki bu fayl GitHub Pages'da
-        // bo'lsa ham, faqat siz bilgan parol orqali kiriladi.
-        // Agar qo'shimcha xavfsizlik kerak bo'lsa, bu faylni .gitignore ga qo'shing.
-
-        const SUPABASE_URL = "https://hyfpxpbabnwokiczzaiy.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_6lP5lPxj3DOz44OZvOcdDw_eTrLL-Qs";
-        const IK_URL = "https://ik.imagekit.io/zaveeqnja";
-        const IK_PUBLIC_KEY = "public_P73tVHOV8MbhGgBny85iUrMtcL4=";
-        // ↓ ImageKit private key — faqat upload/delete uchun, Basic Auth Header orqali ishlatiladi
-        const IK_PRIVATE_KEY = "private_zf+FV703GI3f2jmv9BavytsKr5Y=";
-
-        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        let categories = [], products = [], tgUser = '';
-        let editingProdId = null;
-        let curFiles = [null, null, null], existUrls = [null, null, null], existIds = [null, null, null], doRemove = [false, false, false];
-        let loginLocked = 0, loginFails = 0, pendingDel = null;
-
-        // ===== HELPERS =====
-        const $ = id => document.getElementById(id);
-        const normTg = v => (v || '').trim().replace(/^@+/, '');
-        function showToast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2800) }
-        function ikT(url, w = 500, q = 80) { if (!url || !url.includes('imagekit.io')) return url; return url.includes('?') ? `${url}&tr=w-${w},q-${q}` : `${url}?tr=w-${w},q-${q}` }
-        function getProdImgs(p) { return [p.image_url, p.image_url_2, p.image_url_3].filter(Boolean) }
-        function getMain(p) { return ikT(getProdImgs(p)[0]) || null }
-
-        // ===== LOGIN =====
-        async function doLogin() {
-            const now = Date.now();
-            if (now < loginLocked) { showToast(`⏳ ${Math.ceil((loginLocked - now) / 1000)}s kutib turing`); return }
-            const pass = $('login-pass').value;
-            try {
-                const { data, error } = await sb.rpc('check_admin_password', { p_password: pass });
-                if (error) throw error;
-                if (data === true) {
-                    loginFails = 0; loginLocked = 0;
-                    sessionStorage.setItem('nefrit_admin', pass);
-                    $('login-err').style.display = 'none';
-                    $('login-pass').value = '';
-                    showAdmin();
-                } else {
-                    loginFails++;
-                    if (loginFails >= 3) loginLocked = Date.now() + Math.min(30000, loginFails * 3000);
-                    $('login-err').style.display = 'block';
-                }
-            } catch (_) { loginFails++; $('login-err').style.display = 'block' }
-        }
-
-        async function tryAutoLogin() {
-            const saved = sessionStorage.getItem('nefrit_admin');
-            if (!saved) return;
-            try {
-                const { data, error } = await sb.rpc('check_admin_password', { p_password: saved });
-                if (!error && data === true) showAdmin();
-                else sessionStorage.removeItem('nefrit_admin');
-            } catch (_) { sessionStorage.removeItem('nefrit_admin') }
-        }
-
-        function doLogout() {
-            sessionStorage.removeItem('nefrit_admin');
-            $('admin-screen').classList.add('hidden');
-            $('login-screen').style.display = 'flex';
-        }
-
-        async function showAdmin() {
-            $('login-screen').style.display = 'none';
-            $('admin-screen').classList.remove('hidden');
-            await renderAdmin();
-        }
-
-        // ===== DATA =====
-        async function loadAll() {
-            const [cR, pR] = await Promise.all([
-                sb.from('categories').select('*').order('created_at'),
-                sb.from('products').select('*').order('created_at', { ascending: false })
-            ]);
-            if (!cR.error) categories = cR.data || [];
-            if (!pR.error) products = pR.data || [];
-        }
-
-        async function renderAdmin() {
-            $('cat-list').innerHTML = '<div class="loading-spinner">⏳</div>';
-            $('prod-list').innerHTML = '<div class="loading-spinner">⏳</div>';
-            await loadAll();
-
-            // stats
-            $('st-prods').textContent = products.length;
-            $('st-cats').textContent = categories.length;
-            $('st-low').textContent = products.filter(p => p.stock < 3).length;
-
-            // tg
-            try {
-                const { data } = await sb.from('shop_settings').select('tg_username').eq('id', 1).maybeSingle();
-                if (data?.tg_username) { tgUser = normTg(data.tg_username); $('admin-tg-input').value = '@' + tgUser; }
-            } catch (_) { }
-
-            // system status
-            const total = products.length + categories.length + 1;
-            $('s-rows').textContent = total + ' ta';
-            $('b-rows').style.width = Math.min(total / 5, 100) + '%';
-            const estKB = total * 2, estMB = (estKB / 1024).toFixed(2);
-            $('s-db').textContent = estKB < 1024 ? estKB + ' KB' : estMB + ' MB';
-            const sp = Math.min((estKB / 1024) / 500 * 100, 100);
-            $('b-db').style.width = sp.toFixed(1) + '%';
-            $('s-db-status').textContent = sp < 50 ? 'Holati: yaxshi ✅' : sp < 80 ? 'Holati: ehtiyot ⚠️' : 'To\'lib bormoqda ❗';
-            const imgCnt = products.reduce((s, p) => s + [p.image_url, p.image_url_2, p.image_url_3].filter(Boolean).length, 0);
-            $('s-imgs').textContent = imgCnt + ' ta';
-            $('b-imgs').style.width = Math.min(imgCnt / 500 * 100, 100).toFixed(1) + '%';
-            const bw = ((imgCnt * 0.3 * 5) / 1024).toFixed(2);
-            $('s-bw').textContent = bw + ' GB';
-            $('b-bw').style.width = Math.min((bw / 20) * 100, 100).toFixed(1) + '%';
-
-            await loadAnalytics();
-            renderCatList();
-            renderProdList();
-        }
-
-        // ===== ANALYTICS =====
-        async function loadAnalytics() {
-            try {
-                const now = new Date();
-                const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-                const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6).toISOString();
-                const [tR, wR] = await Promise.all([
-                    sb.from('page_views').select('id', { count: 'exact', head: true }).gte('created_at', todayStart),
-                    sb.from('page_views').select('id', { count: 'exact', head: true }).gte('created_at', weekStart)
-                ]);
-                $('an-today').textContent = tR.count ?? '—';
-                $('an-week').textContent = wR.count ?? '—';
-
-                const days = [];
-                for (let i = 6; i >= 0; i--) { const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i); days.push(d); }
-                const counts = await Promise.all(days.map(async d => {
-                    const fr = new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString();
-                    const to = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1).toISOString();
-                    const r = await sb.from('page_views').select('id', { count: 'exact', head: true }).gte('created_at', fr).lt('created_at', to);
-                    return r.count || 0;
-                }));
-                const mx = Math.max(...counts, 1);
-                const wd = ['Ya', 'Du', 'Se', 'Ch', 'Pa', 'Sh', 'Ya'];
-                $('an-chart').innerHTML = counts.map((c, i) => {
-                    const pct = Math.max((c / mx) * 100, 4), isT = i === 6;
-                    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
-        <div style="font-size:9px;font-weight:700;color:var(--sub)">${c || ''}</div>
-        <div style="width:100%;border-radius:6px 6px 0 0;background:${isT ? 'linear-gradient(180deg,#0D6B50,#1FAD80)' : 'var(--border)'};height:${pct}%;min-height:4px"></div>
-      </div>`;
-                }).join('');
-                $('an-labels').innerHTML = days.map((d, i) => {
-                    const isT = i === 6;
-                    return `<div style="flex:1;text-align:center;font-size:9px;font-weight:${isT ? 800 : 600};color:${isT ? 'var(--blue)' : 'var(--sub)'}">${wd[d.getDay()]}</div>`;
-                }).join('');
-            } catch (_) { $('an-today').textContent = '—'; $('an-week').textContent = '—'; $('an-chart').innerHTML = '<div style="font-size:12px;color:var(--sub);padding:20px">Statistika faol emas</div>'; }
-        }
-
-        // ===== TG =====
-        async function saveTgUsername() {
-            const u = normTg($('admin-tg-input').value);
-            if (!/^[A-Za-z0-9_]{5,32}$/.test(u)) { showToast('❌ Username 5-32 belgi bo\'lsin'); return }
-            const { error } = await sb.from('shop_settings').upsert({ id: 1, tg_username: u, updated_at: new Date().toISOString() }, { onConflict: 'id' });
-            if (error) { showToast('❌ Xatolik: ' + error.message); return }
-            tgUser = u; showToast('✅ Telegram saqlandi');
-        }
-
-        // ===== TABS =====
-        function switchTab(tab) {
-            ['cats', 'prods'].forEach(t => {
-                $('tab-btn-' + t).classList.toggle('active', t === tab);
-                $('tab-' + t).classList.toggle('hidden', t !== tab);
-            });
-        }
-
-        // ===== CATEGORIES =====
-        function renderCatList() {
-            const el = $('cat-list');
-            if (!categories.length) { el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--sub);font-weight:700">Hali kategoriya yo\'q</div>'; return }
-            el.innerHTML = categories.map(c => `
-    <div class="cat-row">
-      <div class="cat-row-icon">${c.emoji || '📂'}</div>
-      <div class="cat-row-name">${c.name}</div>
-      <div class="cat-row-count">${products.filter(p => p.cat_id === c.id).length} ta</div>
-      <button class="del-btn" onclick="confirmDel('cat',${c.id})">🗑️</button>
-    </div>`).join('');
-        }
-
-        function openCatForm() {
-            $('f-cat-name').value = ''; $('f-cat-emoji').value = '';
-            $('cat-overlay').classList.add('open'); document.body.style.overflow = 'hidden';
-            setTimeout(() => $('f-cat-name').focus(), 300);
-        }
-        function closeCatOverlay(e) { if (e.target === $('cat-overlay')) closeCat() }
-        function closeCat() { $('cat-overlay').classList.remove('open'); document.body.style.overflow = '' }
-        function pickEmoji(e) { $('f-cat-emoji').value = e }
-
-        async function saveCat() {
-            const name = $('f-cat-name').value.trim(); const emoji = $('f-cat-emoji').value.trim();
-            if (!name) { showToast('❌ Kategoriya nomini kiriting'); return }
-            const btn = $('save-cat-btn'); btn.disabled = true; btn.textContent = '⏳...';
-            const { error } = await sb.from('categories').insert({ name, emoji: emoji || null });
-            btn.disabled = false; btn.textContent = '💾 Saqlash';
-            if (error) { showToast('❌ ' + error.message); return }
-            showToast('✅ Kategoriya qo\'shildi'); closeCat(); await renderAdmin();
-        }
-
-        // ===== PRODUCTS =====
-        function filterAdminProds() { renderProdList(($('prod-search')?.value || '').toLowerCase().trim()) }
-
-        function renderProdList(q = '') {
-            const el = $('prod-list');
-            const list = q ? products.filter(p => p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q)) : products;
-            if (!list.length) { el.innerHTML = `<div style="text-align:center;padding:30px;color:var(--sub);font-weight:700">${q ? 'Topilmadi' : 'Hali mahsulot yo\'q'}</div>`; return }
-            el.innerHTML = list.map(p => {
-                const cat = categories.find(c => c.id === p.cat_id); const th = getMain(p);
-                return `<div class="prod-row">
-      ${th ? `<img class="prod-thumb" src="${th}" alt="${p.name}">` : `<div class="prod-thumb" style="display:flex;align-items:center;justify-content:center;font-size:28px">🛍️</div>`}
-      <div class="prod-info">
-        <div class="prod-name">${p.name}</div>
-        <div class="prod-meta">${cat?.name || '—'} · ${p.stock === 0 ? '<span style="color:var(--red)">Tugadi</span>' : p.stock + ' dona'}</div>
-        <div class="prod-price">${Number(p.price).toLocaleString()} so'm</div>
-      </div>
-      <div class="prod-actions">
-        <button class="edit-btn" onclick="openProdForm(${p.id})">✏️</button>
-        <button class="del-btn" onclick="confirmDel('prod',${p.id})">🗑️</button>
-      </div>
-    </div>`;
-            }).join('');
-        }
-
-        function openProdForm(id = null) {
-            editingProdId = id || null; curFiles = [null, null, null]; doRemove = [false, false, false];
-            $('prod-form-title').textContent = id ? 'Mahsulotni tahrirlash' : 'Yangi mahsulot';
-            const p = id ? products.find(x => x.id === id) : null;
-            $('f-name').value = p?.name || ''; $('f-price').value = p?.price || ''; $('f-stock').value = p?.stock ?? ''; $('f-desc').value = p?.description || '';
-            existUrls = [p?.image_url || null, p?.image_url_2 || null, p?.image_url_3 || null];
-            existIds = [p?.imagekit_file_id || null, p?.imagekit_file_id_2 || null, p?.imagekit_file_id_3 || null];
-            [0, 1, 2].forEach(i => { $('file-' + i).value = ''; setPreview(i, existUrls[i]); });
-            $('f-cat').innerHTML = categories.map(c => `<option value="${c.id}" ${p?.cat_id === c.id ? 'selected' : ''}>${c.emoji || ''} ${c.name}</option>`).join('');
-            $('prod-overlay').classList.add('open'); document.body.style.overflow = 'hidden';
-        }
-        function closeProdOverlay(e) { if (e.target === $('prod-overlay')) closeProd() }
-        function closeProd() { $('prod-overlay').classList.remove('open'); document.body.style.overflow = '' }
-
-        function setPreview(i, src) {
-            const ph = $('ph-' + i), pw = $('pw-' + i), pr = $('pr-' + i);
-            if (src) { ph.classList.add('hidden'); pw.classList.remove('hidden'); pr.src = src; }
-            else { ph.classList.remove('hidden'); pw.classList.add('hidden'); pr.src = ''; }
-        }
-        function handleFile(i, file) {
-            if (!file) return;
-            if (file.size > 10 * 1024 * 1024) { showToast('❌ Rasm 10MB dan katta bo\'lmasin'); return }
-            const r = new FileReader(); r.onload = e => { setPreview(i, e.target.result); }; r.readAsDataURL(file);
-            curFiles[i] = file; doRemove[i] = true;
-        }
-        function removeImg(i, e) {
-            e.stopPropagation(); curFiles[i] = null; doRemove[i] = true; $('file-' + i).value = ''; setPreview(i, null);
-        }
-
-        // ===== IMAGEKIT DIRECT REST API =====
-        // Upload: ImageKit to'g'ridan-to'g'ri REST endpoint, Basic Auth header (private_key:)
-        async function ikUpload(file) {
-            const fd = new FormData();
-            fd.append('file', file);
-            fd.append('fileName', `product_${Date.now()}_${file.name}`);
-            fd.append('folder', '/products');
-            fd.append('useUniqueFileName', 'true');
-
-            // Progress ko'rsatish
-            const prog = $('upload-progress'), bar = $('upload-bar');
-            prog.style.display = 'block'; bar.style.width = '30%';
-
-            // Basic Auth: "private_key:" (ikkinchi qism bo'm-bo'sh)
-            const authHeader = 'Basic ' + btoa(IK_PRIVATE_KEY + ':');
-
-            const res = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
-                method: 'POST',
-                headers: { 'Authorization': authHeader },
-                body: fd
-            });
-            bar.style.width = '90%';
-            const data = await res.json();
-            bar.style.width = '100%';
-            setTimeout(() => { prog.style.display = 'none'; bar.style.width = '0'; }, 600);
-            if (!res.ok) throw new Error(data.message || 'ImageKit upload xatosi');
-            return { url: data.url, fileId: data.fileId };
-        }
-
-        // Delete: ImageKit REST API DELETE endpoint
-        async function ikDelete(fileId) {
-            if (!fileId) return;
-            try {
-                const authHeader = 'Basic ' + btoa(IK_PRIVATE_KEY + ':');
-                await fetch(`https://api.imagekit.io/v1/files/${fileId}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': authHeader }
-                });
-            } catch (e) { console.warn('IK delete:', e) }
-        }
-
-        // ===== SAVE PRODUCT =====
-        async function saveProd() {
-            const name = $('f-name').value.trim();
-            const catId = parseInt($('f-cat').value);
-            const price = parseInt($('f-price').value);
-            const stock = parseInt($('f-stock').value);
-            const desc = $('f-desc').value.trim();
-            if (!name || !catId || !price || isNaN(stock)) { showToast('❌ Barcha majburiy maydonlarni to\'ldiring'); return }
-
-            const btn = $('save-prod-btn'); btn.disabled = true; btn.textContent = '⏳ Saqlanmoqda...';
-
-            let image_url = existUrls[0], image_url_2 = existUrls[1], image_url_3 = existUrls[2];
-            let imagekit_file_id = existIds[0], imagekit_file_id_2 = existIds[1], imagekit_file_id_3 = existIds[2];
-
-            try {
-                for (let i = 0; i < 3; i++) {
-                    if (curFiles[i] instanceof File) {
-                        btn.textContent = `📤 Rasm ${i + 1} yuklanmoqda...`;
-                        if (existIds[i]) await ikDelete(existIds[i]);
-                        const r = await ikUpload(curFiles[i]);
-                        if (i === 0) { image_url = r.url; imagekit_file_id = r.fileId; }
-                        if (i === 1) { image_url_2 = r.url; imagekit_file_id_2 = r.fileId; }
-                        if (i === 2) { image_url_3 = r.url; imagekit_file_id_3 = r.fileId; }
-                    } else if (doRemove[i]) {
-                        if (existIds[i]) await ikDelete(existIds[i]);
-                        if (i === 0) { image_url = null; imagekit_file_id = null; }
-                        if (i === 1) { image_url_2 = null; imagekit_file_id_2 = null; }
-                        if (i === 2) { image_url_3 = null; imagekit_file_id_3 = null; }
-                    }
-                }
-                const payload = { name, cat_id: catId, price, stock, description: desc || null, image_url, image_url_2, image_url_3, imagekit_file_id, imagekit_file_id_2, imagekit_file_id_3 };
-                let error;
-                if (editingProdId) ({ error } = await sb.from('products').update(payload).eq('id', editingProdId));
-                else ({ error } = await sb.from('products').insert(payload));
-                if (error) throw new Error(error.message);
-                showToast(editingProdId ? '✅ Mahsulot yangilandi' : '✅ Mahsulot qo\'shildi');
-                closeProd(); await renderAdmin();
-            } catch (err) { showToast('❌ Xatolik: ' + err.message); }
-            finally { btn.disabled = false; btn.textContent = '💾 Saqlash'; }
-        }
-
-        // ===== DELETE =====
-        function confirmDel(type, id) {
-            pendingDel = { type, id };
-            $('confirm-sub').textContent = type === 'cat'
-                ? 'Bu kategoriya o\'chiriladi.'
-                : 'Mahsulot va rasmlari ImageKit + Supabase dan o\'chiriladi.';
-            $('confirm-overlay').classList.add('open');
-            $('confirm-ok').onclick = doDel;
-        }
-        function closeConfirm() { $('confirm-overlay').classList.remove('open'); pendingDel = null; }
-
-        async function doDel() {
-            if (!pendingDel) return;
-            const { type, id } = pendingDel;
-            if (type === 'prod') {
-                const p = products.find(x => x.id === id);
-                const fids = [p?.imagekit_file_id, p?.imagekit_file_id_2, p?.imagekit_file_id_3].filter(Boolean);
-                for (const fid of fids) await ikDelete(fid);
-            }
-            const { error } = await sb.from(type === 'cat' ? 'categories' : 'products').delete().eq('id', id);
-            if (error) { showToast('❌ ' + error.message); closeConfirm(); return }
-            showToast(type === 'cat' ? '🗑️ Kategoriya o\'chirildi' : '🗑️ Mahsulot o\'chirildi');
-            closeConfirm(); await renderAdmin();
-        }
-
-        // ===== DRAG & DROP =====
-        document.addEventListener('DOMContentLoaded', () => {
-            [0, 1, 2].forEach(i => {
-                const z = $('zone-' + i);
-                z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('dragover'); });
-                z.addEventListener('dragleave', () => z.classList.remove('dragover'));
-                z.addEventListener('drop', e => { e.preventDefault(); z.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if (f && f.type.startsWith('image/')) handleFile(i, f); });
-            });
+    async function loadCategories() {
+        const { data } = await supabase.from('categories').select('*').order('name');
+        const nav = document.getElementById('categories-nav');
+        data?.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'cat-btn';
+            btn.textContent = cat.name;
+            btn.onclick = () => filterCategory(cat.name, btn);
+            nav.appendChild(btn);
         });
+    }
 
-        // ===== INIT =====
-        (async () => {
-            await tryAutoLogin();
-        })();
-    </script>
+    async function loadProducts() {
+        const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+        if (error) return console.error(error);
+        allProducts = data;
+        renderProducts(allProducts);
+    }
+
+    function renderProducts(list) {
+        const grid = document.getElementById('products-list');
+        grid.innerHTML = list.length ? '' : '<div class="loader">Mahsulot topilmadi.</div>';
+        
+        list.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.onclick = () => openModal(p);
+            card.innerHTML = `
+                <img class="product-img" src="${p.image_url}" alt="${p.name}">
+                <div class="product-info">
+                    <div class="product-name">${p.name}</div>
+                    <div class="product-price">${Number(p.price).toLocaleString()} so'm</div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function filterCategory(catName, btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active'); else document.querySelector('.cat-btn').classList.add('active');
+
+        const filtered = catName === 'all' ? allProducts : allProducts.filter(p => p.category === catName);
+        renderProducts(filtered);
+    }
+
+    function openModal(p) {
+        currentProduct = p;
+        document.getElementById('m-img').src = p.image_url;
+        document.getElementById('m-name').textContent = p.name;
+        document.getElementById('m-desc').textContent = p.description || 'Tavsif mavjud emas.';
+        document.getElementById('m-price').textContent = Number(p.price).toLocaleString() + " so'm";
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    function orderViaTelegram() {
+        const text = encodeURIComponent(`Assalomu alaykum! Men ushbu mahsulotni sotib olmoqchiman:\n\n📦 Nomi: ${currentProduct.name}\n💰 Narxi: ${currentProduct.price} so'm\n🔗 Rasm: ${currentProduct.image_url}`);
+        window.open(`https://t.me/${TG_USERNAME}?text=${text}`, '_blank');
+    }
+
+    init();
+</script>
 </body>
-
 </html>

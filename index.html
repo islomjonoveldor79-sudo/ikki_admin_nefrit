@@ -1239,6 +1239,15 @@
 
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Admin yozish operatsiyalari uchun x-admin-pass headeri bilan client
+        function adminClient() {
+            const pass = sessionStorage.getItem('nefrit_admin');
+            if (!pass) throw new Error('Admin sessiya topilmadi. Qayta login qiling.');
+            return supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                global: { headers: { 'x-admin-pass': pass } }
+            });
+        }
+
         let categories = [], products = [], tgUser = '';
         let editingProdId = null;
         let curFiles = [null, null, null], existUrls = [null, null, null], existIds = [null, null, null], doRemove = [false, false, false];
@@ -1383,10 +1392,12 @@
         // ===== TG =====
         async function saveTgUsername() {
             const u = normTg($('admin-tg-input').value);
-            if (!/^[A-Za-z0-9_]{5,32}$/.test(u)) { showToast('❌ Username 5-32 belgi bo\'lsin'); return }
-            const { error } = await sb.from('shop_settings').upsert({ id: 1, tg_username: u, updated_at: new Date().toISOString() }, { onConflict: 'id' });
-            if (error) { showToast('❌ Xatolik: ' + error.message); return }
-            tgUser = u; showToast('✅ Telegram saqlandi');
+            if (!/^[A-Za-z0-9_]{5,32}$/.test(u)) { showToast('\u274c Username 5-32 belgi bo\'lsin'); return }
+            try {
+                const { error } = await adminClient().from('shop_settings').upsert({ id: 1, tg_username: u, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+                if (error) throw error;
+                tgUser = u; showToast('\u2705 Telegram saqlandi');
+            } catch (e) { showToast('\u274c Xatolik: ' + e.message); }
         }
 
         // ===== TABS =====
@@ -1421,12 +1432,14 @@
 
         async function saveCat() {
             const name = $('f-cat-name').value.trim(); const emoji = $('f-cat-emoji').value.trim();
-            if (!name) { showToast('❌ Kategoriya nomini kiriting'); return }
-            const btn = $('save-cat-btn'); btn.disabled = true; btn.textContent = '⏳...';
-            const { error } = await sb.from('categories').insert({ name, emoji: emoji || null });
-            btn.disabled = false; btn.textContent = '💾 Saqlash';
-            if (error) { showToast('❌ ' + error.message); return }
-            showToast('✅ Kategoriya qo\'shildi'); closeCat(); await renderAdmin();
+            if (!name) { showToast('\u274c Kategoriya nomini kiriting'); return }
+            const btn = $('save-cat-btn'); btn.disabled = true; btn.textContent = '\u23f3...';
+            try {
+                const { error } = await adminClient().from('categories').insert({ name, emoji: emoji || null });
+                btn.disabled = false; btn.textContent = '\U0001f4be Saqlash';
+                if (error) throw error;
+                showToast('\u2705 Kategoriya qo\'shildi'); closeCat(); await renderAdmin();
+            } catch (e) { btn.disabled = false; btn.textContent = '\U0001f4be Saqlash'; showToast('\u274c ' + e.message); }
         }
 
         // ===== PRODUCTS =====
@@ -1555,8 +1568,8 @@
                 }
                 const payload = { name, cat_id: catId, price, stock, description: desc || null, image_url, image_url_2, image_url_3, imagekit_file_id, imagekit_file_id_2, imagekit_file_id_3 };
                 let error;
-                if (editingProdId) ({ error } = await sb.from('products').update(payload).eq('id', editingProdId));
-                else ({ error } = await sb.from('products').insert(payload));
+                if (editingProdId) ({ error } = await adminClient().from('products').update(payload).eq('id', editingProdId));
+                else ({ error } = await adminClient().from('products').insert(payload));
                 if (error) throw new Error(error.message);
                 showToast(editingProdId ? '✅ Mahsulot yangilandi' : '✅ Mahsulot qo\'shildi');
                 closeProd(); await renderAdmin();
@@ -1583,10 +1596,12 @@
                 const fids = [p?.imagekit_file_id, p?.imagekit_file_id_2, p?.imagekit_file_id_3].filter(Boolean);
                 for (const fid of fids) await ikDelete(fid);
             }
-            const { error } = await sb.from(type === 'cat' ? 'categories' : 'products').delete().eq('id', id);
-            if (error) { showToast('❌ ' + error.message); closeConfirm(); return }
-            showToast(type === 'cat' ? '🗑️ Kategoriya o\'chirildi' : '🗑️ Mahsulot o\'chirildi');
-            closeConfirm(); await renderAdmin();
+            try {
+                const { error } = await adminClient().from(type === 'cat' ? 'categories' : 'products').delete().eq('id', id);
+                if (error) throw error;
+                showToast(type === 'cat' ? '\ud83d\uddd1\ufe0f Kategoriya o\'chirildi' : '\ud83d\uddd1\ufe0f Mahsulot o\'chirildi');
+                closeConfirm(); await renderAdmin();
+            } catch (e) { showToast('\u274c ' + e.message); closeConfirm(); }
         }
 
         // ===== DRAG & DROP =====

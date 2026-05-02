@@ -1,0 +1,44 @@
+# =====================================================
+# NEFRIT MARKET — Supabase "Uxlash" Oldini Olish
+# =====================================================
+# Bu fayl GitHub Actions orqali har 5 kunda 1 marta
+# Supabase ga avtomatik so'rov yuboradi.
+#
+# JOYLASH YO'LI: .github/workflows/keep-alive.yml
+# (haridor YOKI admin repoda — ikkalasida ham bo'lishi kerak emas, bittasi yetarli)
+#
+# SOZLASH:
+# 1. GitHub repo → Settings → Secrets and variables → Actions
+# 2. "New repository secret" bosing:
+#    - Name: SUPABASE_URL
+#    - Value: https://XXXX.supabase.co   ← o'zingiznikini yozing
+# 3. Yana "New repository secret":
+#    - Name: SUPABASE_KEY
+#    - Value: sb_publishable_XXXX...     ← o'zingiznikini yozing
+# =====================================================
+
+name: Supabase Keep-Alive Ping
+
+on:
+  schedule:
+    # Har 5 kunda bir marta (Dushanba va Shanba)
+    - cron: '0 6 */5 * *'
+  workflow_dispatch: # Qo'lda ham ishlatish mumkin
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Supabase ga ping yuborish
+        run: |
+          echo "Supabase ga ping yuborilmoqda..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/products?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}")
+          echo "HTTP Status: $STATUS"
+          if [ "$STATUS" = "200" ] || [ "$STATUS" = "206" ]; then
+            echo "✅ Supabase faol va javob bermoqda!"
+          else
+            echo "⚠️ Kutilmagan status: $STATUS"
+          fi
